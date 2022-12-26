@@ -16,11 +16,12 @@
         <ion-slide><img src="" />2</ion-slide>
         <ion-slide><img src="" />3</ion-slide>
       </ion-slides>
-      <ion-grid>
-        <ion-row>
-          <ion-col class="col">
-            <ion-label><ion-icon :icon="searchCircle"></ion-icon></ion-label>
-            <ion-label>1</ion-label>
+      <ion-grid :fixed="true">
+        <ion-row class="row">
+          <ion-col class="col" v-for=" (item, index) in typeTitle" :key="index" size="3">
+            <ion-label><img :src="'src/assets/mszm.png'" /></ion-label>
+            <ion-label>{{ item.titleId }} </ion-label>
+            <ion-label>{{ item.titleName }} </ion-label>
           </ion-col>
         </ion-row>
       </ion-grid>
@@ -29,14 +30,19 @@
 </template>
 
 <script lang="ts">
-import { IonContent, IonIcon, IonItem, IonLabel, IonInput, IonHeader, IonPage, IonTitle, IonToolbar, IonSlides, IonSlide, IonSearchbar } from '@ionic/vue';
+import { IonContent, IonSpinner, IonIcon, onIonViewWillEnter, IonItem, IonLabel, IonInput, IonHeader, IonPage, IonTitle, IonToolbar, IonSlides, IonSlide, IonSearchbar } from '@ionic/vue';
 import { defineComponent, ref, onMounted, getCurrentInstance, ComponentInternalInstance } from 'vue';
 import { searchCircle, alarmOutline } from 'ionicons/icons';
 import { HTTP } from '@awesome-cordova-plugins/http';
+import { IsDebug } from '@awesome-cordova-plugins/is-debug';
+import request, { RequestObg } from '../api';
+import { MusicType } from '../dom';
+import axios, { AxiosInstance } from 'axios'
+
 export default defineComponent({
   name: 'HomePage',
   components: {
-    IonIcon,
+
     IonContent,
     IonHeader,
     IonLabel,
@@ -44,7 +50,9 @@ export default defineComponent({
     IonTitle, IonSlides, IonSlide,
     IonToolbar, IonSearchbar,
   },
+
   setup() {
+
 
     let slideOpts = {
       autoplay: {
@@ -53,18 +61,56 @@ export default defineComponent({
       loop: true,
       swiper: { height: 20 },
     };
+    let typeTitle: any = ref([])
 
-    return { slideOpts, searchCircle, alarmOutline }
+    const getMusictitle = () => {
+      // request.get("/misic/musicTitle").then(data => {
+      //   if (data.status == 200) {
+      //     typeTitle.value = data.data
+      //     alert(JSON.stringify(typeTitle))
+      //   }
+      // }).catch(err => {
+      //   console.log(err)
+      //   alert(JSON.stringify(err))
+      // })
+
+      // setInterval(() => {
+      //   typeTitle.value.push({ titleId: "1", titleName: "123" })
+      //   console.log(12)
+      // }, 1000)
+      HTTP.get("http://192.168.3.172:8080/misic/musicTitle", {}, {}).then(data => {
+        alert(JSON.stringify(data))
+      }).catch(err => {
+        alert(JSON.stringify(err))
+      })
+
+    }
+
+    onMounted(() => {
+      getMusictitle()
+
+    })
+    // IsDebug.getIsDebug().then(isDebug => console.log('Is debug:', isDebug))
+    //   .catch(err => console.error(err));
+
+
+
+
+    return { slideOpts, searchCircle, alarmOutline, typeTitle, getMusictitle }
   },
   mounted() {
-    console.log(123)
-    HTTP.get("http://127.0.0.1:8080/misic/musicTitle", {}, {}).then(data => {
-      console.log(data)
-    })
-    //  
 
-  }
+    // this.getMusictitle();
+    console.log(2)
+  },
+
+
+
+
+
 });
+
+
 </script>
 
 <style scoped>
@@ -74,6 +120,19 @@ export default defineComponent({
   font-size: 20px;
   justify-content: space-around;
   text-align: center;
+
+}
+
+.row {
+  display: flex;
+  flex-wrap: inherit;
+  overflow-y: scroll;
+}
+
+
+
+ion-label ion-icon {
+  font-size: 30px;
 }
 
 .hand {
