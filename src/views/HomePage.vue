@@ -17,12 +17,30 @@
         <ion-slide><img src="" />3</ion-slide>
       </ion-slides>
       <ion-grid :fixed="true">
-        <ion-row class="row">
-          <ion-col class="col" v-for=" (item, index) in typeTitle" :key="index" size="3">
-            <ion-label><img :src="'src/assets/mszm.png'" /></ion-label>
-            <ion-label>{{ item.titleId }} </ion-label>
-            <ion-label>{{ item.titleName }} </ion-label>
-          </ion-col>
+        <ion-row class="ion-justify-content-start">
+          <template v-for=" (item, index) in typeTitle" :key="index">
+            <ion-col size="2" v-if="index <= 10">
+              <ion-label><img :src="require(`../assets/${item.titleId}.png`)" /></ion-label>
+              <!-- <ion-label>{{ item.titleId }} </ion-label> -->
+              <ion-label>{{ item.titleName }} </ion-label>
+            </ion-col>
+          </template>
+        </ion-row>
+      </ion-grid>
+      <ion-item>
+        <h2>推荐歌曲
+          <ion-icon :icon="chevronForwardOutline"></ion-icon>
+        </h2>
+      </ion-item>
+      <ion-grid :fixed="true">
+        <ion-row class="ion-justify-content-start">
+          <template v-for=" (item, index) in indexMusic" :key="index">
+            <ion-col class="musicCol" size="5" v-if="index <= 10" @click="clickMusic(item)">
+              <ion-label><img
+                  :src="`http://192.168.3.172:8080/img/imgStream?imgUrl=${item.pic}&imgSource=https://www.zz123.com`" /></ion-label>
+              <ion-label>{{ item.mname }} </ion-label>
+            </ion-col>
+          </template>
         </ion-row>
       </ion-grid>
     </ion-content>
@@ -30,19 +48,29 @@
 </template>
 
 <script lang="ts">
-import { IonContent, IonSpinner, IonIcon, onIonViewWillEnter, IonItem, IonLabel, IonInput, IonHeader, IonPage, IonTitle, IonToolbar, IonSlides, IonSlide, IonSearchbar } from '@ionic/vue';
+import { IonContent, IonSpinner, IonGrid, IonCol, IonRow, IonIcon, onIonViewWillEnter, IonItem, IonLabel, IonInput, IonHeader, IonPage, IonTitle, IonToolbar, IonSlides, IonSlide, IonSearchbar } from '@ionic/vue';
 import { defineComponent, ref, onMounted, getCurrentInstance, ComponentInternalInstance } from 'vue';
-import { searchCircle, alarmOutline } from 'ionicons/icons';
+import { searchCircle, alarmOutline, chevronForwardOutline } from 'ionicons/icons';
 import { HTTP } from '@awesome-cordova-plugins/http';
 import { IsDebug } from '@awesome-cordova-plugins/is-debug';
+import { NativeAudio } from '@awesome-cordova-plugins/native-audio';
 import request, { RequestObg } from '../api';
-import { MusicType } from '../dom';
-import axios, { AxiosInstance } from 'axios'
+import { MusicType, Music } from '../dom';
+// import { Storage } from '@ionic/utils-stream';
 
 export default defineComponent({
+  props: {
+    name: {
+
+    }
+  },
   name: 'HomePage',
   components: {
-
+    IonItem,
+    IonIcon,
+    IonGrid,
+    IonRow,
+    IonCol,
     IonContent,
     IonHeader,
     IonLabel,
@@ -52,8 +80,6 @@ export default defineComponent({
   },
 
   setup() {
-
-
     let slideOpts = {
       autoplay: {
         delay: 2000,
@@ -61,69 +87,105 @@ export default defineComponent({
       loop: true,
       swiper: { height: 20 },
     };
+    // 获取音乐类型
     let typeTitle: any = ref([])
-
     const getMusictitle = () => {
-      // request.get("/misic/musicTitle").then(data => {
-      //   if (data.status == 200) {
-      //     typeTitle.value = data.data
-      //     alert(JSON.stringify(typeTitle))
-      //   }
-      // }).catch(err => {
-      //   console.log(err)
-      //   alert(JSON.stringify(err))
-      // })
-
-      // setInterval(() => {
-      //   typeTitle.value.push({ titleId: "1", titleName: "123" })
-      //   console.log(12)
-      // }, 1000)
-      HTTP.get("http://192.168.3.172:8080/misic/musicTitle", {}, {}).then(data => {
-        alert(JSON.stringify(data))
+      request.get("/misic/musicTitle").then(data => {
+        if (data.status == 200) {
+          typeTitle.value = data.data
+          // alert(JSON.stringify(typeTitle))
+        }
       }).catch(err => {
+        console.log(err)
         alert(JSON.stringify(err))
       })
+    }
 
+    // 获取音乐主页音乐歌曲
+    let indexMusic: any = ref([]);
+    const getMusicIndex = () => {
+      request.post("/misic/zz123", {
+        act: "index_faxian",
+        page: 1
+      }).then(data => {
+        if (data.status == 200) {
+          indexMusic.value = data.data;
+          console.log(indexMusic);
+        }
+      }).catch(err => {
+        alert(err)
+      })
     }
 
     onMounted(() => {
+      getMusicIndex()
       getMusictitle()
 
+      // IsDebug.getIsDebug().then(isDebug => {
+      //   console.log('Is debug:', isDebug)
+      //   alert(JSON.stringify(isDebug))
+      // }).catch(err => alert(JSON.stringify(err)));
+      // NativeAudio.preloadSimple("abc", "http://win.web.ra01.sycdn.kuwo.cn/5ced758454c97ca7447cb20051e7ffab/63aacef4/resource/n3/320/81/60/2729835609.mp3")
+      //   .then((success) => {
+      //     alert(JSON.stringify(success))
+      //   }, err => {
+      //     alert(JSON.stringify(err))
+      //   })
     })
-    // IsDebug.getIsDebug().then(isDebug => console.log('Is debug:', isDebug))
-    //   .catch(err => console.error(err));
 
 
 
 
-    return { slideOpts, searchCircle, alarmOutline, typeTitle, getMusictitle }
+
+    return {
+      slideOpts, searchCircle, alarmOutline, typeTitle, chevronForwardOutline,
+      getMusictitle,
+      indexMusic, getMusicIndex
+    }
   },
   mounted() {
-
     // this.getMusictitle();
-    console.log(2)
   },
+  methods: {
+    clickMusic(item: Music) {
+      console.log(item)
+    }
+  }
 
 
 
 
 
 });
-
-
 </script>
 
 <style scoped>
-.col {
+ion-icon {
+  transform: translateY(3px);
+}
+
+.musicCol img {
+  width: 100%;
+  filter: none;
+  transform: translateY(0);
+}
+
+ion-col {
   display: flex;
   flex-direction: column;
   font-size: 20px;
   justify-content: space-around;
   text-align: center;
-
 }
 
-.row {
+ion-col img {
+  width: 40%;
+  /* filter: drop-shadow(40px 0px yellow); */
+  transform: translateY(-50px);
+  filter: drop-shadow(#66ccff 0 50px);
+}
+
+ion-row {
   display: flex;
   flex-wrap: inherit;
   overflow-y: scroll;
@@ -162,3 +224,4 @@ ion-searchbar {
   left: 2%;
 }
 </style>
+

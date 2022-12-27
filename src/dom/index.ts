@@ -4,24 +4,46 @@ export interface MusicType {
 }
 
 
+export interface APlayerApi {
+    play?(): void,
+    seek?(time: number): void,
+    pause?(): void
+    audio: Audio,
+    list: List
+}
+export interface Audio {
+    url: string,
+    name: string,
+    cover: string,
+    lrc: string
+}
+export interface List {
+    show(): void, hide(): void, toggle(): void, add(audios: Array<Audio> | Audio): void,
+    remove(index: number): void, switch(index: number): void, clear(): void
+}
+export interface Music {
+    datestr: string
+    hot_num: number
+    id: string
+    mname: string
+    mp3: string
+    pic:
+    string
+    play_time
+    :
+    string
+    sid
+    :
+    string
+    sname
+    :
+    string
+    tid
+    :
+    string
+    url
+    :
+    string
+}
 
-// import axios, { AxiosInstance } from 'axios'
-
-// const api: AxiosInstance = axios.create({
-//     baseURL: "http://192.168.3.172:8080/"
-// })
-
-// api.interceptors.response.use(response => {
-//     return response?.data;
-// },)
-
-
-
-// export default api
-
-// export interface RequestObg {
-//     status: number;
-//     msg: string;
-//     data: any;
-// }
 
