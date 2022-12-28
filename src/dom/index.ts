@@ -5,11 +5,12 @@ export interface MusicType {
 
 
 export interface APlayerApi {
-    play?(): void,
+    play(): void,
     seek?(time: number): void,
     pause?(): void
-    audio: Audio,
+    audio: HTMLAudioElement,
     list: List
+    on(event: string, cb?: (arg1?: any, arg2?: any) => any): void
 }
 
 
@@ -21,6 +22,7 @@ export interface Audio {
     artist: string
 }
 export interface List {
+    audios: Array<Audio>,
     show(): void, hide(): void, toggle(): void, add(audios: Array<Audio> | Audio): void,
     remove(index: number): void, switch(index: number): void, clear(): void
 }

@@ -10,6 +10,7 @@ import { defineComponent, Prop, onMounted, ref } from 'vue';
 import { NativeStorage } from '@awesome-cordova-plugins/native-storage';
 import { MusicType, Music, Audio, MusicInfo, List, APlayerApi } from '../dom';
 import APlayer from 'aplayer';
+import { Item } from '@ionic/core/dist/types/components/item/item';
 export default defineComponent({
     name: 'APlay',
     components: {
@@ -33,6 +34,7 @@ export default defineComponent({
     },
     setup() {
         let ap = ref<null | APlayerApi>(null);
+
         return {
             ap
         }
@@ -42,13 +44,31 @@ export default defineComponent({
             container: document.getElementById("aplyer"),
             order: 'random',
             listFolded: true,
-            lrcType: 3,
+            lrcType: 2,
+            fixed: false,
         }) as APlayerApi;
+        this.ap.on("listadd", (a, b) => {
+            console.log(a, b)
+            return false;
+        })
     },
     methods: {
         musicPlay(audio: Audio) {
-            console.log(audio)
-            this.ap?.list.add(audio);
+            let index = this.ap?.list.audios.findIndex(item => item.name == audio.name) as number;
+            if (index == -1) {
+                this.ap?.list.add(audio);
+                this.ap?.list.switch(this.ap?.list.audios.length - 1)
+                this.ap?.play();
+            } else {
+                console.dir(audio.url, this.ap?.audio.src)
+                if (this.ap?.audio.src == audio.url) {
+
+                    return;
+                }
+                this.ap?.list.switch(index);
+            }
+
+
         }
     }
 

@@ -91,7 +91,7 @@ export default defineComponent({
     // 获取音乐类型
     let typeTitle: any = ref([])
     const getMusictitle = () => {
-      request.get("/misic/musicTitle").then(data => {
+      request.get("/music/musicTitle").then(data => {
         if (data.status == 200) {
           typeTitle.value = data.data
           // alert(JSON.stringify(typeTitle))
@@ -105,7 +105,7 @@ export default defineComponent({
     // 获取音乐主页音乐歌曲
     let indexMusic: any = ref([]);
     const getMusicIndex = () => {
-      request.post("/misic/zz123", {
+      request.post("/music/zz123", {
         act: "index_faxian",
         page: 1
       }).then(data => {
@@ -135,12 +135,13 @@ export default defineComponent({
   },
   methods: {
     clickMusic(item: Music) {
-      request.post("/misic/zz123", {
+      console.log(item)
+      request.post("/music/zz123", {
         act: "songinfo",
         id: item.id,
       }).then(data => {
         let audio: Audio = {
-          url: `http://192.168.3.172:8080/music/musicStream?url=${item.url}$&musicSource=https://www.zz123.com`,
+          url: `http://192.168.3.172:8080/music/musicStream?url=${item.mp3}&musicSource=https://www.zz123.com`,
           name: item.mname,
           artist: item.sname,
           cover: `http://192.168.3.172:8080/img/imgStream?imgUrl=${item.pic}&imgSource=https://www.zz123.com`,
