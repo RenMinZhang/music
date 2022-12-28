@@ -9,7 +9,7 @@
       </ion-toolbar>
     </ion-header>
 
-    <ion-content :fullscreen="true" ref="test">
+    <ion-content :fullscreen="true">
       <ion-slides pager mode="ios" :options="slideOpts">
         <ion-slide><img src="../assets/snowman.png" /></ion-slide>
         <ion-slide><img src="" />1</ion-slide>
@@ -43,6 +43,7 @@
           </template>
         </ion-row>
       </ion-grid>
+      <APlayer class="aplayer" ref="aplayer"></APlayer>
     </ion-content>
   </ion-page>
 </template>
@@ -51,12 +52,11 @@
 import { IonContent, IonSpinner, IonGrid, IonCol, IonRow, IonIcon, onIonViewWillEnter, IonItem, IonLabel, IonInput, IonHeader, IonPage, IonTitle, IonToolbar, IonSlides, IonSlide, IonSearchbar } from '@ionic/vue';
 import { defineComponent, ref, onMounted, getCurrentInstance, ComponentInternalInstance } from 'vue';
 import { searchCircle, alarmOutline, chevronForwardOutline } from 'ionicons/icons';
-import { HTTP } from '@awesome-cordova-plugins/http';
-import { IsDebug } from '@awesome-cordova-plugins/is-debug';
-import { NativeAudio } from '@awesome-cordova-plugins/native-audio';
 import request, { RequestObg } from '../api';
-import { MusicType, Music } from '../dom';
+import APlayer from '../components/APlayer.vue';
+import { MusicType, Music, Audio, MusicInfo, List } from '../dom';
 // import { Storage } from '@ionic/utils-stream';
+import { NativeStorage } from '@awesome-cordova-plugins/native-storage';
 
 export default defineComponent({
   props: {
@@ -77,9 +77,10 @@ export default defineComponent({
     IonPage,
     IonTitle, IonSlides, IonSlide,
     IonToolbar, IonSearchbar,
+    APlayer,
   },
-
   setup() {
+
     let slideOpts = {
       autoplay: {
         delay: 2000,
@@ -121,21 +122,7 @@ export default defineComponent({
       getMusicIndex()
       getMusictitle()
 
-      // IsDebug.getIsDebug().then(isDebug => {
-      //   console.log('Is debug:', isDebug)
-      //   alert(JSON.stringify(isDebug))
-      // }).catch(err => alert(JSON.stringify(err)));
-      // NativeAudio.preloadSimple("abc", "http://win.web.ra01.sycdn.kuwo.cn/5ced758454c97ca7447cb20051e7ffab/63aacef4/resource/n3/320/81/60/2729835609.mp3")
-      //   .then((success) => {
-      //     alert(JSON.stringify(success))
-      //   }, err => {
-      //     alert(JSON.stringify(err))
-      //   })
     })
-
-
-
-
 
     return {
       slideOpts, searchCircle, alarmOutline, typeTitle, chevronForwardOutline,
@@ -148,8 +135,41 @@ export default defineComponent({
   },
   methods: {
     clickMusic(item: Music) {
-      console.log(item)
+      request.post("/misic/zz123", {
+        act: "songinfo",
+        id: item.id,
+      }).then(data => {
+        let audio: Audio = {
+          url: `http://192.168.3.172:8080/music/musicStream?url=${item.url}$&musicSource=https://www.zz123.com`,
+          name: item.mname,
+          artist: item.sname,
+          cover: `http://192.168.3.172:8080/img/imgStream?imgUrl=${item.pic}&imgSource=https://www.zz123.com`,
+          lrc: data.data.lrc.replaceAll("种子音乐 网址 zz123.com", ""),
+        }
+
+        let aplayer: any = this.$refs.aplayer
+        aplayer.musicPlay(audio);
+      }).catch(err => {
+        alert(JSON.stringify(err))
+      })
+
+
     }
+
+
+    //  NativeStorage.getItem("musicList").then(
+    //    data => {
+    //      let audios = data as Array<Audio>
+    //      audios.unshift(audio)
+    //      NativeStorage.setItem("musicList", audios).then(
+    //        data => {
+    //          alert(JSON.stringify(data))
+    //        },
+    //        error => alert(JSON.stringify(error))
+    //      )
+    //    },
+    //    error => console.error(error)
+    //  )
   }
 
 

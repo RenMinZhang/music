@@ -11,11 +11,14 @@ export interface APlayerApi {
     audio: Audio,
     list: List
 }
+
+
 export interface Audio {
     url: string,
     name: string,
     cover: string,
     lrc: string
+    artist: string
 }
 export interface List {
     show(): void, hide(): void, toggle(): void, add(audios: Array<Audio> | Audio): void,
@@ -42,6 +45,29 @@ export interface Music {
     :
     string
     url
+    :
+    string
+}
+export interface MusicInfo {
+    lrc
+    :
+    string
+    mname
+    :
+    string
+    mp3
+    :
+    string
+    pic
+    :
+    string
+    playtime
+    :
+    string
+    sid
+    :
+    string
+    sname
     :
     string
 }
