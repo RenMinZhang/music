@@ -8,7 +8,6 @@
         </ion-title>
       </ion-toolbar>
     </ion-header>
-
     <ion-content :fullscreen="true">
       <ion-slides pager mode="ios" :options="slideOpts">
         <ion-slide><img src="../assets/snowman.png" /></ion-slide>
@@ -19,26 +18,26 @@
       <ion-grid :fixed="true">
         <ion-row class="ion-justify-content-start">
           <template v-for=" (item, index) in typeTitle" :key="index">
-            <ion-col size="2" v-if="index <= 10">
+            <ion-col size="2" v-if="index <= 20" @click="getTypeMusic(item)">
               <ion-label><img :src="require(`../assets/${item.titleId}.png`)" /></ion-label>
               <!-- <ion-label>{{ item.titleId }} </ion-label> -->
-              <ion-label>{{ item.titleName }} </ion-label>
+              <ion-label class="font12px">{{ item.titleName }} </ion-label>
             </ion-col>
           </template>
         </ion-row>
       </ion-grid>
       <ion-item>
-        <h2>推荐歌曲
+        <h5 class="font15px">推荐歌曲
           <ion-icon :icon="chevronForwardOutline"></ion-icon>
-        </h2>
+        </h5>
       </ion-item>
       <ion-grid :fixed="true">
         <ion-row class="ion-justify-content-start">
           <template v-for=" (item, index) in indexMusic" :key="index">
-            <ion-col class="musicCol" size="5" v-if="index <= 10" @click="clickMusic(item)">
+            <ion-col class="musicCol" size="3" v-if="index <= 25" @click="clickMusic(item)">
               <ion-label><img
                   :src="`http://192.168.3.172:8080/img/imgStream?imgUrl=${item.pic}&imgSource=https://www.zz123.com`" /></ion-label>
-              <ion-label>{{ item.mname }} </ion-label>
+              <ion-label class="font12px whiteNowrap">{{ item.mname }} </ion-label>
             </ion-col>
           </template>
         </ion-row>
@@ -153,7 +152,21 @@ export default defineComponent({
       }).catch(err => {
         alert(JSON.stringify(err))
       })
+    },
 
+    async getTypeMusic(item: MusicType, page = 1) {
+      // 
+      let data: RequestObg = await request.post("/music/zz123",
+        {
+          act: "tag_music",
+          page,
+          tid: item.titleId,
+          type: "tuijian"
+        }
+      )
+      if (data.status == 200) {
+        this.indexMusic = data.data
+      }
 
     }
 
@@ -202,8 +215,8 @@ ion-col {
 ion-col img {
   width: 40%;
   /* filter: drop-shadow(40px 0px yellow); */
-  transform: translateY(-50px);
-  filter: drop-shadow(#66ccff 0 50px);
+  /* transform: translateY(-50px);
+  filter: drop-shadow(#66ccff 0 50px); */
 }
 
 ion-row {

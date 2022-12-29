@@ -1,0 +1,13 @@
+.font12px{
+    font-size: 12px;
+}
+.font15px{
+    font-size: 15px;
+}
+ .whiteNowrap {
+    white-space: nowrap;
+    overflow: hidden;
+}
+.colorBlue{
+    color: #3171e0 !important;
+}
