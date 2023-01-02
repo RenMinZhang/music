@@ -1,61 +1,75 @@
 <template>
+  <ion-page>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>
+          <button @click="c">c</button>
+          <br />
+          <button @click="b">b</button>
+        </ion-title>
+      </ion-toolbar>
+
+    </ion-header>
     <ion-content>
-        <ion-list>
-            <ion-item v-for="(item, index) in items" :key="index">
-                <ion-avatar slot="start">
-                    <img :src="'https://picsum.photos/80/80?random=' + index" alt="avatar" />
-                </ion-avatar>
-                <ion-label>{{ item }}</ion-label>
-            </ion-item>
-        </ion-list>
-        <ion-infinite-scroll @ionInfinite="ionInfinite">
-            <ion-infinite-scroll-content></ion-infinite-scroll-content>
-        </ion-infinite-scroll>
+      <component :is="a"></component>
     </ion-content>
+
+
+  </ion-page>
 </template>
 
 <script lang="ts">
+import MusicIndex from "../views/MusicIndex.vue";
+import { defineComponent, ref } from "vue";
 import {
-    IonContent,
-    IonInfiniteScroll,
-    IonInfiniteScrollContent,
-    IonList,
-    IonItem,
-    IonAvatar,
-    IonImg,
-    IonLabel
-} from '@ionic/vue';
-import { defineComponent, reactive } from 'vue';
-
+  IonIcon,
+  IonLabel,
+  IonPage,
+  IonTabBar,
+  IonTabButton,
+  IonTabs,
+  IonSlides,
+  IonSlide,
+  IonContent
+} from "@ionic/vue";
+import { calendar, personCircle } from "ionicons/icons";
+import { Swiper, SwiperSlide } from "swiper/vue";
+import SearchMusic from "./SearchMusic.vue";
+import 'swiper/css';
+import '@ionic/vue/css/ionic-swiper.css';
 export default defineComponent({
-    name: "TEst",
-    components: {
-        IonContent,
-        IonInfiniteScroll,
-        IonInfiniteScrollContent,
-        IonList,
-        IonItem,
-        IonAvatar,
+  name: "TEst",
+  components: {
+    IonPage,
+    IonContent,
+    SearchMusic,
+  },
+  methods: {
 
-        IonLabel,
-    },
-    setup() {
-        const items: Array<string> = reactive([]);
-        const generateItems = () => {
-            const count = items.length + 1;
-            for (let i = 0; i < 50; i++) {
-                items.push(`Item ${count + i}`);
-            }
-        };
-
-        const ionInfinite = (ev: any) => {
-            generateItems();
-            setTimeout(() => ev.target.complete(), 500);
-        };
-
-        generateItems();
-
-        return { ionInfinite, items };
-    },
+  },
+  setup() {
+    let a = ref<string>("slides-component")
+    let c = () => {
+      a.value = 'SearchMusic'
+    }
+    let b = () => {
+      a.value = 'slides-component'
+    }
+    return {
+      calendar,
+      personCircle,
+      c,
+      a,
+      b
+    };
+  },
 });
 </script>
+
+<style scoped>
+.tt {
+  /* --offset-bottom: 100% !important; */
+  min-height: 100vh;
+  height: 100%
+}
+</style>

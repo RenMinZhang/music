@@ -1,199 +1,167 @@
+<!-- eslint-disable no-undef -->
 <template>
   <ion-page>
-    <ion-header :translucent="true">
+    <ion-header>
       <ion-toolbar>
         <ion-title class="hand">
           <img class="logo" src="../assets/snowman.png" />
-          <ion-searchbar mode="ios"></ion-searchbar>
+          <ion-item href vv="/home/searchMusic">
+            <ion-searchbar
+              value=""
+              ref="search"
+              placeholder="搜索音乐"
+              mode="ios"
+            ></ion-searchbar>
+          </ion-item>
         </ion-title>
       </ion-toolbar>
     </ion-header>
-    <ion-content :fullscreen="true">
-      <ion-slides pager mode="ios" :options="slideOpts">
-        <ion-slide><img src="../assets/snowman.png" /></ion-slide>
-        <ion-slide><img src="" />1</ion-slide>
-        <ion-slide><img src="" />2</ion-slide>
-        <ion-slide><img src="" />3</ion-slide>
-      </ion-slides>
-      <ion-grid :fixed="true">
-        <ion-row class="ion-justify-content-start">
-          <template v-for=" (item, index) in typeTitle" :key="index">
-            <ion-col size="2" v-if="index <= 20" @click="getTypeMusic(item)">
-              <ion-label><img :src="require(`../assets/${item.titleId}.png`)" /></ion-label>
-              <!-- <ion-label>{{ item.titleId }} </ion-label> -->
-              <ion-label class="font12px">{{ item.titleName }} </ion-label>
-            </ion-col>
-          </template>
-        </ion-row>
-      </ion-grid>
-      <ion-item>
-        <h5 class="font15px">推荐歌曲
-          <ion-icon :icon="chevronForwardOutline"></ion-icon>
-        </h5>
-      </ion-item>
-      <ion-grid :fixed="true">
-        <ion-row class="ion-justify-content-start">
-          <template v-for=" (item, index) in indexMusic" :key="index">
-            <ion-col class="musicCol" size="3" v-if="index <= 25" @click="clickMusic(item)">
-              <ion-label><img
-                  :src="`http://192.168.3.172:8080/img/imgStream?imgUrl=${item.pic}&imgSource=https://www.zz123.com`" /></ion-label>
-              <ion-label class="font12px whiteNowrap">{{ item.mname }} </ion-label>
-            </ion-col>
-          </template>
-        </ion-row>
-      </ion-grid>
-      <APlayer class="aplayer" ref="aplayer"></APlayer>
+    <ion-content>
+      <ion-page>
+        <ion-router-outlet></ion-router-outlet>
+      </ion-page>
     </ion-content>
+    <ion-footer>
+      <a-player
+        v-if="!uk.isOpen.value"
+        class="aplayer"
+        ref="aplayer"
+      ></a-player>
+      <ion-tabs>
+        <ion-tab-bar>
+          <ion-tab-button
+            :class="currentIndex == 0 ? 'colorBlue' : ''"
+            @click="currentChange(0)"
+          >
+            <ion-icon :icon="musicalNotesSharp" />
+            <ion-label>Tab 1</ion-label>
+          </ion-tab-button>
+          <ion-tab-button
+            @click="currentChange(1)"
+            :class="currentIndex == 1 ? 'colorBlue' : ''"
+          >
+            <ion-icon :icon="ellipse" />
+            <ion-label>Tab 2</ion-label>
+          </ion-tab-button>
+        </ion-tab-bar>
+      </ion-tabs>
+    </ion-footer>
   </ion-page>
 </template>
 
 <script lang="ts">
-import { IonContent, IonSpinner, IonGrid, IonCol, IonRow, IonIcon, onIonViewWillEnter, IonItem, IonLabel, IonInput, IonHeader, IonPage, IonTitle, IonToolbar, IonSlides, IonSlide, IonSearchbar } from '@ionic/vue';
-import { defineComponent, ref, onMounted, getCurrentInstance, ComponentInternalInstance } from 'vue';
-import { searchCircle, alarmOutline, chevronForwardOutline } from 'ionicons/icons';
-import request, { RequestObg } from '../api';
-import APlayer from '../components/APlayer.vue';
-import { MusicType, Music, Audio, MusicInfo, List } from '../dom';
-// import { Storage } from '@ionic/utils-stream';
-import { NativeStorage } from '@awesome-cordova-plugins/native-storage';
+import { useRouter } from "vue-router";
+import {
+  IonContent,
+  IonSpinner,
+  IonGrid,
+  IonCol,
+  IonRow,
+  IonIcon,
+  onIonViewWillEnter,
+  IonItem,
+  IonLabel,
+  IonInput,
+  IonHeader,
+  IonPage,
+  IonTabBar,
+  IonTabButton,
+  IonFooter,
+  IonSearchbar,
+  useIonRouter,
+  createAnimation,
+} from "@ionic/vue";
 
+import { Swiper, SwiperSlide } from "swiper/vue";
+import MusicIndex from "@/views/MusicIndex.vue";
+import SearchMusic from "@/views/SearchMusic.vue";
+import { defineComponent, ref, onMounted, provide } from "vue";
+import { ellipse, musicalNotesSharp, chevronBackOutline } from "ionicons/icons";
+import request, { RequestObg } from "../api";
+import APlayer from "../components/APlayer.vue";
+import { MusicType, Music, Audio, MusicInfo, List } from "../dom";
+import { Components } from "@ionic/core/dist/types/components";
+import { useKeyboard } from "@ionic/vue";
 export default defineComponent({
   props: {
     name: {
-
-    }
+      type: String,
+    },
   },
-  name: 'HomePage',
+  name: "HomePage",
   components: {
-    IonItem,
-    IonIcon,
-    IonGrid,
-    IonRow,
-    IonCol,
     IonContent,
-    IonHeader,
-    IonLabel,
     IonPage,
-    IonTitle, IonSlides, IonSlide,
-    IonToolbar, IonSearchbar,
     APlayer,
+    IonTabButton,
+    IonTabBar,
+    IonLabel,
+    IonIcon,
+    IonFooter,
+    IonSearchbar,
+  },
+  watch: {
+    "router.currentRoute.value.fullPath": {
+      handler(newValue, oldValue) {
+        this.currentPath = newValue;
+      },
+      deep: true,
+    },
   },
   setup() {
-
-    let slideOpts = {
-      autoplay: {
-        delay: 2000,
-      },
-      loop: true,
-      swiper: { height: 20 },
-    };
-    // 获取音乐类型
-    let typeTitle: any = ref([])
-    const getMusictitle = () => {
-      request.get("/music/musicTitle").then(data => {
-        if (data.status == 200) {
-          typeTitle.value = data.data
-          // alert(JSON.stringify(typeTitle))
-        }
-      }).catch(err => {
-        console.log(err)
-        alert(JSON.stringify(err))
-      })
-    }
-
-    // 获取音乐主页音乐歌曲
-    let indexMusic: any = ref([]);
-    const getMusicIndex = () => {
-      request.post("/music/zz123", {
-        act: "index_faxian",
-        page: 1
-      }).then(data => {
-        if (data.status == 200) {
-          indexMusic.value = data.data;
-          console.log(indexMusic);
-        }
-      }).catch(err => {
-        alert(err)
-      })
-    }
-
+    let currentIndex = ref(0);
+    let searchName = ref("");
+    let uk = useKeyboard();
     onMounted(() => {
-      getMusicIndex()
-      getMusictitle()
-
-    })
-
+      //
+    });
+    const router = useRouter();
+    let currentPath = ref(router.currentRoute.value.fullPath);
     return {
-      slideOpts, searchCircle, alarmOutline, typeTitle, chevronForwardOutline,
-      getMusictitle,
-      indexMusic, getMusicIndex
-    }
+      musicalNotesSharp,
+      ellipse,
+      router,
+      currentIndex,
+      currentPath,
+      searchName,
+      chevronBackOutline,
+      uk,
+    };
   },
   mounted() {
-    // this.getMusictitle();
+    let aplayer: any = this.$refs.aplayer as any;
+    let a = aplayer.$el.querySelector(".aplayer-info") as HTMLElement;
+    // a.addEventListener("click", this.goToPlayFull)
   },
   methods: {
-    clickMusic(item: Music) {
-      console.log(item)
-      request.post("/music/zz123", {
-        act: "songinfo",
-        id: item.id,
-      }).then(data => {
-        let audio: Audio = {
-          url: `http://192.168.3.172:8080/music/musicStream?url=${item.mp3}&musicSource=https://www.zz123.com`,
-          name: item.mname,
-          artist: item.sname,
-          cover: `http://192.168.3.172:8080/img/imgStream?imgUrl=${item.pic}&imgSource=https://www.zz123.com`,
-          lrc: data.data.lrc.replaceAll("种子音乐 网址 zz123.com", ""),
-        }
-
-        let aplayer: any = this.$refs.aplayer
-        aplayer.musicPlay(audio);
-      }).catch(err => {
-        alert(JSON.stringify(err))
-      })
+    searchMusic() {
+      // let searchName: Components.IonSearchbar = this.$refs.search as Components.IonSearchbar;
+      // this.searchName = searchName.value as string;
     },
-
-    async getTypeMusic(item: MusicType, page = 1) {
-      // 
-      let data: RequestObg = await request.post("/music/zz123",
-        {
-          act: "tag_music",
-          page,
-          tid: item.titleId,
-          type: "tuijian"
-        }
-      )
-      if (data.status == 200) {
-        this.indexMusic = data.data
-      }
-
-    }
-
-
-    //  NativeStorage.getItem("musicList").then(
-    //    data => {
-    //      let audios = data as Array<Audio>
-    //      audios.unshift(audio)
-    //      NativeStorage.setItem("musicList", audios).then(
-    //        data => {
-    //          alert(JSON.stringify(data))
-    //        },
-    //        error => alert(JSON.stringify(error))
-    //      )
-    //    },
-    //    error => console.error(error)
-    //  )
-  }
-
-
-
-
-
+    clickMusic(audio: Audio) {
+      let aplayer: any = this.$refs.aplayer;
+      aplayer.musicPlay(audio);
+    },
+    currentChange(index: number) {
+      this.currentIndex = index;
+    },
+    goToPlayFull() {
+      console.log("goToPlayFull");
+      this.router.push("/playerFull");
+    },
+    gotoSearchPage() {
+      this.router.push("/home/searchMusic");
+      console.log(this.router.currentRoute.value.fullPath);
+    },
+  },
 });
 </script>
 
 <style scoped>
+.back {
+  transform: translateY(10px);
+}
+
 ion-icon {
   transform: translateY(3px);
 }
@@ -225,8 +193,6 @@ ion-row {
   overflow-y: scroll;
 }
 
-
-
 ion-label ion-icon {
   font-size: 30px;
 }
@@ -234,13 +200,11 @@ ion-label ion-icon {
 .hand {
   display: flex;
   position: relative;
-  top: -20px
+  padding: 0;
 }
-
-ion-slide img {
-  height: 160px;
+ion-button {
+  width: 100%;
 }
-
 ion-searchbar {
   width: 80%;
   position: absolute;
@@ -257,5 +221,8 @@ ion-searchbar {
   position: absolute;
   left: 2%;
 }
+ion-footer {
+  /* position: fixed; */
+  bottom: 0;
+}
 </style>
-
