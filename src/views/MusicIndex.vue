@@ -13,7 +13,7 @@
         hide: true,
       }"
     >
-      <swiper-slide v-for="(item, index) in typeTitle" :key="index">
+      <swiper-slide v-for="(item, index) in us.state.typeTitle" :key="index">
         <ion-col
           size="10"
           @click="getTypeMusic(item, index)"
@@ -27,25 +27,22 @@
       </swiper-slide>
     </swiper>
 
-    <ion-item detail-icon="chevronForwardOutline" href="/moreMusic">
+    <ion-item detail-icon="chevronForwardOutline" @click="gotoMoreMusic">
       <h5 class="font15px">
-        推荐歌曲
+        更多歌曲
         <ion-icon :icon="chevronForwardOutline"></ion-icon>
       </h5>
     </ion-item>
     <ion-grid :fixed="true">
       <ion-row class="ion-justify-content-start">
-        <template v-for="(item, index) in indexMusic" :key="index">
+        <template v-for="(item, index) in us.state.indexMusic" :key="index">
           <ion-col
             class="musicCol"
             size="3"
             v-if="index < 12"
             @click="clickMusic(item)"
           >
-            <ion-label
-              ><img
-                :src="`http://192.168.3.172:8080/img/imgStream?imgUrl=${item.pic}&imgSource=https://www.zz123.com`"
-            /></ion-label>
+            <ion-label><img :src="imgStream(item.pic)" /></ion-label>
             <ion-label class="font12px whiteNowrap"
               >{{ item.mname }}
             </ion-label>
@@ -87,14 +84,7 @@ import {
 } from "vue";
 import { Swiper, SwiperSlide } from "swiper/vue";
 import { Swiper as SwiperClass } from "swiper/types";
-import "swiper/css";
-import "@ionic/vue/css/ionic-swiper.css";
-import "swiper/css/scrollbar";
-import "swiper/css/navigation";
-import "swiper/css/pagination";
-import "swiper/css/autoplay";
-import "swiper/css/keyboard";
-import "swiper/css/zoom";
+
 import {
   searchCircle,
   alarmOutline,
@@ -143,12 +133,11 @@ export default defineComponent({
       swiper: { height: 20 },
     };
     // 获取音乐类型
-    let typeTitle: any = ref([]);
     const getMusictitle = () => {
       titleMusic()
         .then((data) => {
           if (data.status == 200) {
-            typeTitle.value = data.data;
+            us.commit("setTypeTitle", data.data);
             // alert(JSON.stringify(typeTitle))
           }
         })
@@ -159,12 +148,11 @@ export default defineComponent({
     };
 
     // 获取音乐主页音乐歌曲
-    let indexMusic: any = ref([]);
     const getMusicIndex = () => {
       im()
         .then((data) => {
           if (data.status == 200) {
-            indexMusic.value = data.data;
+            us.state.indexMusic = data.data;
           }
         })
         .catch((err) => {
@@ -182,15 +170,14 @@ export default defineComponent({
       slideOpts,
       searchCircle,
       alarmOutline,
-      typeTitle,
       chevronForwardOutline,
       getMusictitle,
-      indexMusic,
       getMusicIndex,
       currentMusicType,
       Scrollbar,
       modules,
       us,
+      imgStream,
     };
   },
   mounted() {
@@ -219,9 +206,12 @@ export default defineComponent({
       //
       let { status, data } = await typeMusic(item.titleId);
       if (status == 200) {
-        this.indexMusic = data;
+        this.us.state.indexMusic = data;
       }
-      this.currentMusicType = item.titleId;
+      this.us.state.currentMusicType = item.titleId;
+    },
+    gotoMoreMusic() {
+      this.us.commit("setComponentName", "MoreMusic");
     },
   },
 });

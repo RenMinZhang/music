@@ -1,33 +1,38 @@
 <!-- eslint-disable no-undef -->
 <template>
   <ion-page>
-    <ion-header>
+    <ion-header v-show="store.state.componentName == 'SlidesComponent'">
       <ion-toolbar>
         <ion-title class="hand">
           <img class="logo" src="../assets/snowman.png" />
-          <ion-item href vv="/home/searchMusic">
-            <ion-searchbar
-              value=""
-              ref="search"
-              placeholder="搜索音乐"
-              mode="ios"
-            ></ion-searchbar>
-          </ion-item>
+          <ion-searchbar
+            value=""
+            ref="search"
+            placeholder="搜索音乐"
+            mode="ios"
+            @click="gotoSearchPage"
+          ></ion-searchbar>
         </ion-title>
       </ion-toolbar>
     </ion-header>
     <ion-content>
       <ion-page>
-        <ion-router-outlet></ion-router-outlet>
+        <!-- <ion-router-outlet></ion-router-outlet> -->
+        <keep-alive>
+          <component
+            :is="store.state.componentName"
+            ref="componentN"
+          ></component>
+        </keep-alive>
       </ion-page>
     </ion-content>
     <ion-footer>
       <a-player
-        v-if="!uk.isOpen.value"
+        v-show="!uk.isOpen.value"
         class="aplayer"
         ref="aplayer"
       ></a-player>
-      <ion-tabs>
+      <ion-tabs v-show="store.state.componentName == 'SlidesComponent'">
         <ion-tab-bar>
           <ion-tab-button
             :class="currentIndex == 0 ? 'colorBlue' : ''"
@@ -74,14 +79,16 @@ import {
 
 import { Swiper, SwiperSlide } from "swiper/vue";
 import MusicIndex from "@/views/MusicIndex.vue";
+import MoreMusic from "@/views/MoreMusic.vue";
 import SearchMusic from "@/views/SearchMusic.vue";
+import SlidesComponent from "../components/SlidesComponent.vue";
 import { defineComponent, ref, onMounted, provide } from "vue";
 import { ellipse, musicalNotesSharp, chevronBackOutline } from "ionicons/icons";
-import request, { RequestObg } from "../api";
 import APlayer from "../components/APlayer.vue";
 import { MusicType, Music, Audio, MusicInfo, List } from "../dom";
 import { Components } from "@ionic/core/dist/types/components";
 import { useKeyboard } from "@ionic/vue";
+import { useStore } from "vuex";
 export default defineComponent({
   props: {
     name: {
@@ -99,6 +106,10 @@ export default defineComponent({
     IonIcon,
     IonFooter,
     IonSearchbar,
+    MusicIndex,
+    SlidesComponent,
+    SearchMusic,
+    MoreMusic,
   },
   watch: {
     "router.currentRoute.value.fullPath": {
@@ -112,6 +123,7 @@ export default defineComponent({
     let currentIndex = ref(0);
     let searchName = ref("");
     let uk = useKeyboard();
+    let store = useStore();
     onMounted(() => {
       //
     });
@@ -126,6 +138,7 @@ export default defineComponent({
       searchName,
       chevronBackOutline,
       uk,
+      store,
     };
   },
   mounted() {
@@ -150,8 +163,11 @@ export default defineComponent({
       this.router.push("/playerFull");
     },
     gotoSearchPage() {
-      this.router.push("/home/searchMusic");
-      console.log(this.router.currentRoute.value.fullPath);
+      this.store.commit("setComponentName", "searchMusic");
+      this.$nextTick(() => {
+        let component: any = this.$refs.componentN;
+        component.impuSetFocus();
+      });
     },
   },
 });
@@ -201,6 +217,8 @@ ion-label ion-icon {
   display: flex;
   position: relative;
   padding: 0;
+
+  transform: translateY(-21px);
 }
 ion-button {
   width: 100%;

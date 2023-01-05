@@ -5,14 +5,16 @@
         <ion-title class="hand">
           <ion-icon
             :icon="chevronBackOutline"
-            @click="router.back()"
+            @click="gotoslides"
             class="logo back"
           ></ion-icon>
           <ion-searchbar
+            enterkeyhint="search"
+            type="search"
             value=""
             ref="search"
             placeholder="搜索音乐"
-            mode=" ios"
+            mode="ios"
             @ionInput="inputName"
           >
           </ion-searchbar>
@@ -27,9 +29,7 @@
           @click="clickMusic(result)"
         >
           <ion-thumbnail slot="start">
-            <img
-              :src="`http://192.168.3.172:8080/img/imgStream?imgUrl=${result.pic}&imgSource=https://www.zz123.com`"
-            />
+            <img :src="imgStream(result.pic)" />
           </ion-thumbnail>
           <ion-label> {{ result.mname }}-{{ result.sname }} </ion-label>
         </ion-item>
@@ -51,8 +51,25 @@ import { imgStream } from "../api/imgRequest";
 
 import { List, Music, Audio } from "../dom";
 import { useStore } from "vuex";
-
+import {
+  useBackButton,
+  IonInput,
+  IonSearchbar,
+  onIonViewDidEnter,
+} from "@ionic/vue";
 export default defineComponent({
+  ionViewDidEnter() {
+    console.log("Home page did enter");
+  },
+  ionViewDidLeave() {
+    console.log("Home page did leave");
+  },
+  ionViewWillEnter() {
+    console.log("Home page will enter");
+  },
+  ionViewWillLeave() {
+    console.log("Home page will leave");
+  },
   name: "SearchMusic",
   components: {},
   setup(t, props) {
@@ -60,15 +77,33 @@ export default defineComponent({
     let results: any = ref([]);
     let page = ref(1);
     let us = useStore();
-    return { results, chevronBackOutline, router, page, us };
+    useBackButton(10, () => {
+      us.commit("setComponentName", "SlidesComponent");
+    });
+
+    return { results, chevronBackOutline, router, page, us, imgStream };
   },
   mounted() {
-    alert(123);
-    let search: any = this.$refs?.search;
-
-    search.$el.setFocus();
+    // this.setaa();
+  },
+  beforeUpdate() {
+    //
   },
   methods: {
+    impuSetFocus() {
+      let search: any = this.$refs.search;
+      let searchEl: any = search.$el;
+      let timer = setInterval(() => {
+        let inputEl = searchEl.querySelector("input");
+        if (inputEl != null) {
+          searchEl.setFocus();
+          clearInterval(timer);
+        }
+      }, 500);
+    },
+    gotoslides() {
+      this.us.commit("setComponentName", "SlidesComponent");
+    },
     inputName() {
       console.log(this.results);
       this.results = [];
@@ -135,6 +170,7 @@ ion-searchbar {
 .hand {
   display: flex;
   position: relative;
-  top: -20px;
+  padding: 0;
+  transform: translateY(-21px);
 }
 </style>

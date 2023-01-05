@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router';
-import { IonButton, IonicVue, IonItem, IonSearchbar, IonTitle, IonToolbar } from '@ionic/vue';
+import { IonBackButton, IonButton, IonButtons, IonCol, IonGrid, IonicVue, IonItem, IonSearchbar, IonTitle, IonToolbar } from '@ionic/vue';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/vue/css/core.css';
@@ -33,6 +33,17 @@ import './theme/global.css';
 //APlayer
 import 'aplayer/dist/APlayer.min.css';
 
+//swiper
+import "swiper/css";
+import "@ionic/vue/css/ionic-swiper.css";
+import "swiper/css/scrollbar";
+import "swiper/css/navigation";
+import "swiper/css/pagination";
+import "swiper/css/autoplay";
+import "swiper/css/keyboard";
+import "swiper/css/zoom";
+import { Swiper, SwiperSlide } from "swiper/vue";
+
 const app = createApp(App)
   .use(IonicVue)
   .use(store)
@@ -62,6 +73,18 @@ app.component('ion-content', IonContent)
   .component("ion-searchbar", IonSearchbar)
   .component("ion-button", IonButton)
   .component("ion-item", IonItem)
+  .component("ion-back-button", IonBackButton)
+  .component("ion-buttons", IonButtons)
+  .component("swiper", Swiper)
+  .component("swiper-slide", SwiperSlide)
+  .component("ion-grid", IonGrid)
+  .component("ion-col", IonCol)
+  .component("ion-col", IonCol)
+  .component("ion-col", IonCol)
+  .component("ion-col", IonCol)
+  .component("ion-col", IonCol)
+  .component("ion-col", IonCol)
+  .component("ion-grid", IonCol)
 
 
 router.isReady().then(() => {
